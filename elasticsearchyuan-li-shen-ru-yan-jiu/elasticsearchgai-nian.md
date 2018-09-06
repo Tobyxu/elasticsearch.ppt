@@ -77,7 +77,8 @@
 >
 > 水平扩容：采购很多的普通服务器，构成强大的计算和存储能力
 
-#### 10.master节点作用？  
+#### 10.master节点作用？
+
 默认es会选出一个master节点，主要用于
 
 > （1）索引创建或删除  
@@ -132,84 +133,85 @@
 #### 19.Elasticsearch并发冲突问题?
 
 > Elasticsearch 是异步和并发的，当文档创建、更新或删除时， 节点之间复制顺序是乱的  
-> es使用_version乐观锁来达到这个目的， 请求时带版本号参数，如果该版本不是当前版本号，请求将会失败
-每次对这个document执行修改或者删除操作，都会对这个_version版本号自动加1
+> es使用\_version乐观锁来达到这个目的， 请求时带版本号参数，如果该版本不是当前版本号，请求将会失败  
+> 每次对这个document执行修改或者删除操作，都会对这个\_version版本号自动加1
 
 #### 20.部分更新（partial update）和全量更新的原理
 
->PUT /index/type/id 创建文档&替换文档，就是一样的语法
-一般对应到应用程序中，每次的执行流程基本是这样的：
-1、应用程序发起一个get请求，获取到document，展示到前台界面，供用户查看和修改
-2、用户在前台界面修改数据，发送到后台
-3、后台代码会将用户修改的数据在内存中进行执行，然后封装好修改后的全量数据
-4、然后发送PUT请求到es中，进行全量替换
-5、es将老的document标记为delete，然后重新创建一个新的document
-
->```
-POST /index/type/id/_update
-{
-　　"doc" : {
-　　　　"要修改的少数几个field"
-　　}
-}
-```
->每次就传递几个发生修改的field即可，不需要将全量的document数据发送过去。
-实现原理：
-其实es内部对partial update的实际操作，更传统的全量替换方式，几乎是一样的
-1、内部先获取document
-2、将传过来的field更新到document的json中
-3、将老的document标记为deleted
-4、将修改后的新的document创建出来
-
->partial update相较于全量替换的优点：
-1、全量替换需要将数据从es中通过java应用程序传输到用户界面，然后用户在前台界面修改后，再通过java应用程序写入到es中去，而partial update的所有查询、修改和写回操作，都发生在es中的一个shard内部，避免了所有网络数据传输的开销（减少了两次网络请求），大大提升了性能
-2、全量替换，查询结果放在界面，用户修改就有可能经历10分钟或者更长时间，然后修改完以后再写回去，可能es中的数据早已经被别人修改了，所以并发冲突的情况就会发生的较多。而partial update的查询、修改和写回都发生在es中一个shard内部，一瞬间就完成修改，可能耗时就是毫秒级别的，所以可以大大减少并发冲突的情况。
-
->partial update 涉及到的两个知识点：
-1、retry_on_conflict = n（如果第一次更新失败，接下来会重新获取新的version版本号，继续尝试更新。这个过程会持续N次）
-POST /index/type/id/_update?retry_on_conflict=n
-2、version（指定特定的版本号）
-POST /index/type/id/_update?version=n
+> PUT /index/type/id 创建文档&替换文档，就是一样的语法  
+> 一般对应到应用程序中，每次的执行流程基本是这样的：  
+> 1、应用程序发起一个get请求，获取到document，展示到前台界面，供用户查看和修改  
+> 2、用户在前台界面修改数据，发送到后台  
+> 3、后台代码会将用户修改的数据在内存中进行执行，然后封装好修改后的全量数据  
+> 4、然后发送PUT请求到es中，进行全量替换  
+> 5、es将老的document标记为delete，然后重新创建一个新的document
+>
+> ```
+> POST /index/type/id/_update
+> {
+> 　　"doc" : {
+> 　　　　"要修改的少数几个field"
+> 　　}
+> }
+> ```
+>
+> 每次就传递几个发生修改的field即可，不需要将全量的document数据发送过去。  
+> 实现原理：  
+> 其实es内部对partial update的实际操作，更传统的全量替换方式，几乎是一样的  
+> 1、内部先获取document  
+> 2、将传过来的field更新到document的json中  
+> 3、将老的document标记为deleted  
+> 4、将修改后的新的document创建出来
+>
+> partial update相较于全量替换的优点：  
+> 1、全量替换需要将数据从es中通过java应用程序传输到用户界面，然后用户在前台界面修改后，再通过java应用程序写入到es中去，而partial update的所有查询、修改和写回操作，都发生在es中的一个shard内部，避免了所有网络数据传输的开销（减少了两次网络请求），大大提升了性能  
+> 2、全量替换，查询结果放在界面，用户修改就有可能经历10分钟或者更长时间，然后修改完以后再写回去，可能es中的数据早已经被别人修改了，所以并发冲突的情况就会发生的较多。而partial update的查询、修改和写回都发生在es中一个shard内部，一瞬间就完成修改，可能耗时就是毫秒级别的，所以可以大大减少并发冲突的情况。
+>
+> partial update 涉及到的两个知识点：  
+> 1、retry\_on\_conflict = n（如果第一次更新失败，接下来会重新获取新的version版本号，继续尝试更新。这个过程会持续N次）  
+> POST /index/type/id/\_update?retry\_on\_conflict=n  
+> 2、version（指定特定的版本号）  
+> POST /index/type/id/\_update?version=n
 
 #### 21.document路由到shard原理
 
->路由算法：shard = hash(routing) % number_of_primary_shards
-
->routing值，默认是_id，也可以手动指定，比如：
-put /index/type/id?routing=user_id
-primary shard数量不可变，否则根据这个公式，之前的数据就找不到了
+> 路由算法：shard = hash\(routing\) % number\_of\_primary\_shards
+>
+> routing值，默认是\_id，也可以手动指定，比如：  
+> put /index/type/id?routing=user\_id  
+> primary shard数量不可变，否则根据这个公式，之前的数据就找不到了
 
 #### 22.es的增删改原理
 
 增删改只涉及到primary shard，不会由replica shard处理。
 
->（1）客户端选择一个协调节点node发送请求过去，这个node对document进行路由，将请求转发给对应的node（有primary shard），primary shard处理请求，然后将数据同步到replica node
-（2）协调节点node如果发现primary node和所有replica node都处理完之后，返回响应结果给客户端
+> （1）客户端选择一个协调节点node发送请求过去，这个node对document进行路由，将请求转发给对应的node（有primary shard），primary shard处理请求，然后将数据同步到replica node  
+> （2）协调节点node如果发现primary node和所有replica node都处理完之后，返回响应结果给客户端
 
 #### 23.es的查询原理
 
->1、客户端发送请求到任意一个协调节点node，这个node对document进行路由，将请求转发对应的node上（此时会使用round-robin随机轮询算法，在primary shard以及其所有replica中随机选择一个，让读请求负载均衡）
-2、接收请求的node最后的总结果返回document给协调节点node，协调节点node返回document给客户端
-![](/assets/51.png)
-
+> 1、客户端发送请求到任意一个协调节点node，这个node对document进行路由，将请求转发对应的node上（此时会使用round-robin随机轮询算法，在primary shard以及其所有replica中随机选择一个，让读请求负载均衡）  
+> 2、接收请求的node最后的总结果返回document给协调节点node，协调节点node返回document给客户端  
+> ![](/assets/51.png)
 
 #### 24.timeout机制
->搜索时可指定参数timeout 单位ms毫秒 s/秒 m/分钟
-GET /_search?timeout=10m
-默认是无timeout，但是如果查询很慢就要等待所有结果查出来，指定timeout可在规定时间内
-返回每个shard上查到的结果然后就立即返回。
 
+> 搜索时可指定参数timeout 单位ms毫秒 s/秒 m/分钟  
+> GET /\_search?timeout=10m  
+> 默认是无timeout，但是如果查询很慢就要等待所有结果查出来，指定timeout可在规定时间内  
+> 返回每个shard上查到的结果然后就立即返回。
 
 #### 25.分页搜索原理
->如果搜索请求一个协调节点，要查询总数30000条中的第500页，查询第5000-5100数据，每个shard上数据是10000条，这时，每个shard返回5100数据，总数15300条给协调节点，然后再对这些数据进行_score排序，取_score最高的10条返回。
-因此深度分页性能问题会非常明显的暴露出来
 
->官方默认不让返回超过10000条以上数据，index.max_result_window参数限制
+> 如果搜索请求一个协调节点，要查询总数30000条中的第500页，查询第5000-5100数据，每个shard上数据是10000条，这时，每个shard返回5100数据，总数15300条给协调节点，然后再对这些数据进行\_score排序，取\_score最高的10条返回。  
+> 因此深度分页性能问题会非常明显的暴露出来
+>
+> 官方默认不让返回超过10000条以上数据，index.max\_result\_window参数限制
+>
+> ![](/assets/52.png)
 
->![](/assets/52.png)
-
-解决：
-1.修改index.max_result_window设置值来继续使用from+size做分页查询，这样性能肯定不高。
+解决：  
+1.修改index.max\_result\_window设置值来继续使用from+size做分页查询，这样性能肯定不高。
 
 ```
 PUT index/_settings?preserve_existing=true
@@ -220,23 +222,25 @@ PUT index/_settings?preserve_existing=true
  }
 ```
 
-2.使用Scroll
-如果深度查询性能会很差，一般会采取使用scroll滚动搜索，可以先搜索一批数据，然后下次再搜索一批数据
-指定一个scoll参数，指定当前scroll的打开时间（只有当前scroll为打开状态，才能获取到值）,size返回条数大小
-{
-  "query": {
-    "match_all": {}
-  },
-  "sort": [ "_doc" ],
-  "size": 3
-}
-![](/assets/57.png)
-会有一个scoll_id，下一次再发送scoll请求的时候，必须带上这个scoll_id
+2.使用Scroll  
+如果深度查询性能会很差，一般会采取使用scroll滚动搜索，可以先搜索一批数据，然后下次再搜索一批数据  
+指定一个scoll参数，指定当前scroll的打开时间（只有当前scroll为打开状态，才能获取到值）,size返回条数大小  
+{  
+  "query": {  
+    "match\_all": {}  
+  },  
+  "sort": \[ "\_doc" \],  
+  "size": 3  
+}  
+![](/assets/57.png)  
+会有一个scoll\_id，下一次再发送scoll请求的时候，必须带上这个scoll\_id
+
 #### 26.filter与query对比
->一般来说，如果搜索需要匹配条件的数据先返回，这些搜索条件要放在query中，反之，不想影响你的排序的条件放到filter
-filter，不计算相关度分数，不按照相关度分数排序，同时还内置自动cache最常使用filter的数据
-query，计算相关度分数，按照分数进行排序，而且无法cache结果
-因此filter性能高于query
+
+> 一般来说，如果搜索需要匹配条件的数据先返回，这些搜索条件要放在query中，反之，不想影响你的排序的条件放到filter  
+> filter，不计算相关度分数，不按照相关度分数排序，同时还内置自动cache最常使用filter的数据  
+> query，计算相关度分数，按照分数进行排序，而且无法cache结果  
+> 因此filter性能高于query
 
 #### 27.如何定位你的查询语法是否合法的详细信息？
 
@@ -247,7 +251,8 @@ POST /order_index/order_type/_validate/query?explain
 ![](/assets/54.png)
 
 #### 28.如何解决对字符串进行排序结果不正确的问题？
-通常解决方案是，将string field建立两次索引，一个分词，用来搜索；一个不分词，用来排序
+
+通常解决方案是，将string field建立两次索引，一个分词，用来搜索；一个不分词，用来排序  
 注意：字符串排序需要设置Fielddata
 
 ```
@@ -287,9 +292,8 @@ PUT /order_index_new/_mapping/order_type
   }
 }
 ```
+
 ![](/assets/55.png)
-
-
 
 ```
 POST order_index_new/order_type/
@@ -309,25 +313,43 @@ POST order_index_new/order_type/
 
 #### 29.正排索引doc values
 
->搜索时，要依靠倒排索引；排序的时候，依靠正排索引，每个document的每个field，然后进行排序，所谓的正排索引，其实就是doc values
-
->在建立索引的时候，一方面建立倒排索引，供搜索用；一方面建立正排索引，就是doc values，供排序，聚合，过滤等操作
-
->doc values，如果内存足够，os会自动将其缓存在内存中，性能会很高；如果内存不够，os会将其写入磁盘上
-
+> 搜索时，要依靠倒排索引；排序的时候，依靠正排索引，每个document的每个field，然后进行排序，所谓的正排索引，其实就是doc values
+>
+> 在建立索引的时候，一方面建立倒排索引，供搜索用；一方面建立正排索引，就是doc values，供排序，聚合，过滤等操作
+>
+> doc values，如果内存足够，os会自动将其缓存在内存中，性能会很高；如果内存不够，os会将其写入磁盘上
 
 #### 30.集群节点的角色
 
-
-主(master)节点
+主\(master\)节点
 
 node.master设置为True（默认）的时候，它有资格被选作为主节点，控制整个集群。
 
-数据(data)节点
+数据\(data\)节点
 
 在一个节点上node.data设置为True（默认）的时候。该节点保存数据和执行数据相关的操作，如增删改查，搜索，和聚合
 
 客户端节点
 
 当一个节点的node.master和node.data都设置为false的时候，它既不能保持数据也不能成为主节点，该节点可以作为客户端节点，可以响应用户的情况，把相关操作发送到其他节点
+
+####  31.关于Head插件的BUG
+Head插件存在精度问题
+![](/assets/66.png)
+![](/assets/67.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
