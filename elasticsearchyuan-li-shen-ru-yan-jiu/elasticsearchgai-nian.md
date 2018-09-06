@@ -334,7 +334,9 @@ node.master设置为True（默认）的时候，它有资格被选作为主节�
 当一个节点的node.master和node.data都设置为false的时候，它既不能保持数据也不能成为主节点，该节点可以作为客户端节点，可以响应用户的情况，把相关操作发送到其他节点
 
 ####  31.关于Head插件的BUG
+
 Head插件存在精度问题
+
 ![](/assets/66.png)
 ![](/assets/67.png)
 
