@@ -341,6 +341,23 @@ Head插件存在精度问题
 ![](/assets/67.png)
 
 
+#### 31.es中mapping中的enable,store,index参数以及type分词
+
+1.enable 默认是true，只用于mapping中的object字段类型。当设置为false时，其作用是使es不去解析该字段，并且该字段不能被查询和store，只有在_source中才能看到（即查询结果中会显示的_source数据）。设置enabled为false，可以不设置字段类型，默认为object
+2.index
+默认是true。当设置为false，表明该字段不能被查询，如果查询会报错。但是可以被store。当该文档被查出来时，在_source中也会显示出该字段。
+3.store
+默认false。store参数的功能和_source有一些相似。我们的数据默认都会在_source中存在。但我们也可以将数据store起来
+4.type
+如果type是keyword，如果index设为false就是不能搜索了
+
+enable为false不能设置store为true
+index和store不冲突
+enable字段类型为object，设置了enable，不能设置index参数
+
+
+
+
 
 
 
