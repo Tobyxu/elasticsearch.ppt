@@ -341,7 +341,7 @@ Head插件存在精度问题
 ![](/assets/67.png)
 
 
-#### 31.es中mapping中的enable,store,index参数以及type分词
+#### 32.es中mapping中的enable,store,index参数以及type分词
 
 1.enable 默认是true，只用于mapping中的object字段类型。当设置为false时，其作用是使es不去解析该字段，并且该字段不能被查询和store，只有在_source中才能看到（即查询结果中会显示的_source数据）。设置enabled为false，可以不设置字段类型，默认为object
 2.index
