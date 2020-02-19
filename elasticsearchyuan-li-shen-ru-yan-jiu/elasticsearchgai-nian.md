@@ -356,6 +356,9 @@ index和store不冲突
 enable字段类型为object，设置了enable，不能设置index参数
 
 
+#### 33.elasticearch倒排索引结构
+
+
 
 
 
