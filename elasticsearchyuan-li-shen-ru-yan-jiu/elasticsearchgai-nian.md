@@ -441,9 +441,9 @@ PUT my_index
 值得注意的是mapping中的字段我们确定以后不会基于这个字段做排序或者聚合，可以把它关掉，但是一定要非常明确你的这个操作，因为如果要重新打开doc_values，需要重建索引，这个在生产环境下还是要谨慎。
 
 
+#### 34.MySQL和Lucene索引对比分析
 
-
-
+https://www.cnblogs.com/luxiaoxun/p/5452502.html
 
 
 
