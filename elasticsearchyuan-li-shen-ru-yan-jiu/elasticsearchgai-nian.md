@@ -377,7 +377,7 @@ enable字段类型为object，设置了enable，不能设置index参数
 
 
 
-doc values是被保存在磁盘上的，此时如果内存足够，os会自动将其缓存在内存中，性能还是会很高；如果内存不足够，os会将其写入磁盘上。
+
 
 倒排索引举例：
 doc1: hello world you and me
@@ -410,9 +410,19 @@ document	name	age
 doc1	jack	27
 doc2	tom	30
 
+正排索引，也会写入磁盘文件中，然后呢，os cache先进行缓存，以提升访问doc value正排索引的性能
+如果os cache内存大小不足够放得下整个正排索引，就会将doc value的数据写入磁盘文件中
 
 
-不需要正排索引的字段，禁用减少磁盘空间的占用
+性能问题：给jvm更少内存，64g服务器，给jvm最多16g
+>es官方是建议，es大量是基于os cache来进行缓存和提升性能的，不建议用jvm内存来进行缓存，那样会导致一定的gc开销和oom问题
+给jvm更少的内存，给os cache更大的内存
+64g服务器，给jvm最多16g，剩下来的几十个g的内存给os cache
+os cache可以提升doc value和倒排索引的缓存和查询效率
+
+
+对于非text字段类型，doc_values默认情况下是打开的。
+不需要正排索引的字段，禁用减少磁盘空间的占用,但是该字段不支持排序了
 
 PUT my_index
 {
@@ -420,7 +430,7 @@ PUT my_index
     "my_type": {
       "properties": {
         "my_field": {
-          "type":       "keyword"
+          "type": "keyword"
           "doc_values": false 
         }
       }
@@ -428,6 +438,7 @@ PUT my_index
   }
 }
 
+值得注意的是mapping中的字段我们确定以后不会基于这个字段做排序或者聚合，可以把它关掉，但是一定要非常明确你的这个操作，因为如果要重新打开doc_values，需要重建索引，这个在生产环境下还是要谨慎。
 
 
 
