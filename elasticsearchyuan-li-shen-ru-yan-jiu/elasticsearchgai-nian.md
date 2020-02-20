@@ -358,6 +358,18 @@ enable字段类型为object，设置了enable，不能设置index参数
 
 #### 33.elasticsearch倒排索引结构
 
+正排索引是文档 Id 到文档内容、单词的关联关系。也就是说可以通过 Id获取到文档的内容。
+
+倒排索引是单词到文档 Id 的关联关系。也就是说了一通过单词搜索到文档 Id。
+
+
+![](/assets/zp.jpg)
+
+![](/assets/1.jpg)
+
+倒排索引的查询流程
+
+![](/assets/2.jpg)
 
 
 
