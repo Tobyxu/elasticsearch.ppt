@@ -443,6 +443,7 @@ PUT my_index
 
 #### 34.MySQL和Lucene索引对比分析
 
+https://www.csdn.net/gather_21/MtTaMgysMDMyMi1ibG9n.html
 https://www.cnblogs.com/luxiaoxun/p/5452502.html
 
 
