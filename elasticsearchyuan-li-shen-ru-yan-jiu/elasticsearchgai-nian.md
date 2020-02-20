@@ -411,7 +411,7 @@ doc1	jack	27
 doc2	tom	30
 
 正排索引，也会写入磁盘文件中，然后呢，os cache先进行缓存，以提升访问doc value正排索引的性能
-如果os cache内存大小不足够放得下整个正排索引，就会将doc value的数据写入磁盘文件中
+如果os cache内存大小不够放得下整个正排索引，就会将doc value的数据写入磁盘文件中
 
 
 性能问题：给jvm更少内存，64g服务器，给jvm最多16g
