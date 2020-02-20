@@ -358,7 +358,7 @@ enable字段类型为object，设置了enable，不能设置index参数
 
 #### 33.elasticsearch倒排索引结构
 
-搜索的时候，要依靠倒排索引：排序的时候，需要依靠正排索引，看到每个document的每个field，然后进行排序，所谓的正排索引，其实就是doc values。
+搜索的时候，要依靠倒排索引：排序的时候，需要依靠正排索引，看到每个document的每个field，然后进行排序，所谓的正排索引，其实就是文档内容。
 
 正排索引是文档 Id 到文档内容、单词的关联关系。也就是说可以通过 Id获取到文档的内容。
 
@@ -377,9 +377,56 @@ enable字段类型为object，设置了enable，不能设置index参数
 
 
 
+doc values是被保存在磁盘上的，此时如果内存足够，os会自动将其缓存在内存中，性能还是会很高；如果内存不足够，os会将其写入磁盘上。
+
+倒排索引举例：
+doc1: hello world you and me
+doc2: hi, world, how are you
+
+word	doc1	doc2
+hello   *
+world  *	　　	*
+you     *　　 	*
+and　 *
+me     *
+hi       *
+how   *
+are    *
+
+hello you --> hello, you
+
+hello --> doc1
+you --> doc1,doc2
+
+正排索引举例：
+doc1: hello world you and me
+doc2: hi, world, how are you
+
+sort by age
+doc1: { "name": "jack", "age": 27 }
+doc2: { "name": "tom", "age": 30 }
+
+document	name	age
+doc1	jack	27
+doc2	tom	30
 
 
 
+不需要正排索引的字段，禁用减少磁盘空间的占用
+
+PUT my_index
+{
+  "mappings": {
+    "my_type": {
+      "properties": {
+        "my_field": {
+          "type":       "keyword"
+          "doc_values": false 
+        }
+      }
+    }
+  }
+}
 
 
 
