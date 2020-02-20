@@ -16,3 +16,6 @@ yum -y install nodejs npm
 cd elasticsearch-head/
 
 npm install
+
+配置插件
+
